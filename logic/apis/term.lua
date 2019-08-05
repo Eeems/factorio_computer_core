@@ -72,6 +72,8 @@ table.insert(computer.apis,{
                 for index, data in ipairs({...}) do
                     if type(data) == "table" then
                         data = table.tostring(data)
+                    elseif type(data) == 'function' then
+                        data = tostring(data)
                     end
                     text = text .. data
                 end
