@@ -17,20 +17,45 @@ require("logic.apis.speaker")
 require("logic.apis.disk")
 
 baseEnv = {
+    -- Basic library
+    assert = assert,
+    -- collectgarbage = collectgarbage,
+    -- dofile = dofile,
+    -- error = error,
+    -- _G is handled outside
+    getmetatable = getmetatable,
     ipairs = ipairs,
-    pairs = pairs,
+    load = load,
+    -- loadfile = loadfile,
     next = next,
+    pairs = pairs,
+    pcall = pcall,
+    -- print = print,
+    rawequal = rawequal,
+    rawget = rawget,
+    rawlen = rawlen,
+    rawset = rawset,
     select = select,
+    setmetatable = setmetatable,
     tonumber = tonumber,
     tostring = tostring,
     type = type,
     unpack = unpack,
-    table = table,
+    _VERSION = _VERSION,
+    -- xpcall = xpcall,
+
+    -- Other libraries
+    -- coroutine = coroutine,
+    -- require = require,
+    -- pacakge = package,
     string = string,
+    table = table,
     math = math,
-    assert = assert,
-    load = load,
-    pcall = pcall,
+    bit32 = bit32,
+    -- io = io,
+    -- file = file,
+    -- os = os,
+    -- debug = debug,
 
     defines = defines,
 }

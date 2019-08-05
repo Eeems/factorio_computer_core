@@ -322,6 +322,7 @@ computer = {
 
         env.proxies.args = {...}
         deepcopy(baseEnv, env.proxies)
+        env.proxies._G = env.proxies
 
         if type(script) == "string" then
             script, err = load(script, nil, "bt", env.proxies)
