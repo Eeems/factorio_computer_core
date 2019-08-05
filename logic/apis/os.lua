@@ -86,6 +86,9 @@ table.insert(computer.apis,{
         pcall = {
             "os.pcall(callback, ...) - The os.pcall function calls its first argument in protected mode, so that it catches any errors while the function is running. If there are no errors, pcall returns true, plus any values returned by the call. Otherwise, it returns false, plus the error message.",
             function(self, callback, ...)
+                if callback == nil then
+                    return false, 'callback is nil'
+                end
                 local fct, err = load(string.dump(callback), nil, "b", self.__env)
                 if err then
                     return false, err
