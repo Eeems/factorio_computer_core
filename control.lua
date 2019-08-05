@@ -53,7 +53,6 @@ baseEnv = {
     math = math,
     bit32 = bit32,
     -- io = io,
-    -- file = file,
     -- os = os,
     -- debug = debug,
 
