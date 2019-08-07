@@ -28,7 +28,7 @@ table.insert(computer.apis,{
             "os.__init() - Init API",
             function(self)
                 self._callbacks = {}
-                self._data = {}
+                self._env = {}
             end
         },
         getComputerID = {
@@ -52,13 +52,13 @@ table.insert(computer.apis,{
         setenv = {
             "os.setenv(varname, ...args) - Sets environment variables for the given name",
             function(self, varname, ...)
-                self._data[varname] = {...}
+                self._env[varname] = {...}
             end
         },
         remenv = {
             "os.remenv(varname) - Remove environment variables for the given name",
             function(self, varname)
-                self._data[varname] = nil
+                self._env[varname] = nil
             end
         },
         pcall = {
@@ -140,7 +140,7 @@ table.insert(computer.apis,{
         getenv = {
             "os.getenv(varname) - Returns environment variables of the given name",
             function(self, varname)
-                return unpack(self._data[varname] or {})
+                return unpack(self._env[varname] or {})
             end
         },
         remove = {
