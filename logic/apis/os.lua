@@ -107,7 +107,7 @@ table.insert(computer.apis,{
             function(self, format, time)
                 if not time then
                     -- We'll assume that the game started at the begining of "time"
-                    time = os.time({
+                    time = self.__time({
                         year=3000,
                         month=1,
                         day=1,
@@ -115,7 +115,7 @@ table.insert(computer.apis,{
                         minute=0
                     }) + math.floor(self.__getPlayedTick() / 60)
                 end
-                return os.date(format, time)
+                return self.__date(format, time)
             end
         },
         difftime = {
@@ -123,7 +123,7 @@ table.insert(computer.apis,{
             function(self, t2, t1)
                 return math.floor(t2 - t1)
             end
-        }
+        },
         execute = {
             "os.execute([command]) - Run a system command and return the result",
             function(self, command)
@@ -152,7 +152,7 @@ table.insert(computer.apis,{
                 self.__removeFile(filepath)
                 return true, ""
             end
-        }
+        },
         rename = {
             "os.rename(oldname, newname) - Renames a file named oldname to newname. If the function fails, it returns nil plus a string describing the error",
             function(self, oldname, newname)
@@ -180,7 +180,7 @@ table.insert(computer.apis,{
             "os.time([table]) - Returnst eh current time when called without arguments. Or a time represented by the date and time specified in a given table",
             function(self, table)
                 if not table then
-                    return os.time({
+                    return self.__time({
                         year=3000,
                         month=1,
                         day=1,
@@ -188,13 +188,13 @@ table.insert(computer.apis,{
                         minute=0
                     }) + math.floor(self.__getPlayedTick() / 60)
                 end
-                return os.time(table)
+                return self.__time(table)
             end
         },
         tmpname = {
             "os.tmpname() - Returns a string with a file name that can be used for a temporary file. The file must be explicitly opened before use and explicitly removed when no longer needed",
             function(self)
-                return "/tmp/" + os.time()
+                return "/tmp/" + self.__time()
             end
         }
     }

@@ -469,6 +469,25 @@ computer = {
                             return game.tick
                         end
                     end,
+                    __getPlayedTick = function(self)
+                        return function()
+                            ok, fn = pcall(function() return game.ticks_played end)
+                            if ok then
+                                return fn()
+                            end
+                            return game.tick
+                        end
+                    end,
+                    __time = function(self)
+                        return function(table)
+                            return _G.os.time(table)
+                        end
+                    end,
+                    __date = function(self)
+                        return function(format, time)
+                            return _G.os.date(format, time)
+                        end
+                    end,
                     __require = function(self)
                         return function(filename)
                             local file = self.env.file.parent
