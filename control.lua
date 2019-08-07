@@ -42,12 +42,12 @@ baseEnv = {
     type = type,
     unpack = unpack,
     _VERSION = _VERSION,
-    -- xpcall = xpcall,
+    xpcall = xpcall,
 
     -- Other libraries
     -- coroutine = coroutine,
     -- require = require,
-    -- pacakge = package,
+    -- package = package,
     string = string,
     table = table,
     math = math,

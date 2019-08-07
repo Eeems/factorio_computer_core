@@ -49,38 +49,16 @@ table.insert(computer.apis,{
                 self.__setLabel(label)
             end
         },
-        time = {
-            "os.time() - Returns the current in-game hour",
-            function(self)
-                local time = (self.__getGameTick() % 25000) / 25000 * 24 + 12
-                if time >= 24 then
-                    time = time - 24
-                end
-                return time
+        setenv = {
+            "os.setenv(varname, ...args) - Sets environment variables for the given name",
+            function(self, varname, ...)
+                self._data[varname] = {...}
             end
         },
-        date = {
-            "os.date() - Returns the current in-game date",
-            function(self)
-                return self.__getGameTick()
-            end
-        },
-        set = {
-            "os.set(name, ...args) - Sets environment variables for the given name",
-            function(self, name, ...)
-                self._data[name] = {...}
-            end
-        },
-        get = {
-            "os.get(name) - Returns environment variables of the given name",
-            function(self, name)
-                return unpack(self._data[name] or {})
-            end
-        },
-        clear = {
-            "os.clear(name) - Remove environment variables for the given name",
-            function(self, name)
-                self._data[name] = nil
+        remenv = {
+            "os.remenv(varname) - Remove environment variables for the given name",
+            function(self, varname)
+                self._data[varname] = nil
             end
         },
         pcall = {
@@ -115,6 +93,108 @@ table.insert(computer.apis,{
                 assert(filepath ~= "..", "Unable to require directory '..'")
 
                 return self.__require(filepath)
+            end
+        },
+        -- Lua os module
+        clock = {
+            "os.clock() - return an approximation of the amount of in game seconds of CPU time used by the program",
+            function(self)
+                return math.floor(self.__getPlayedTick() / 60)
+            end
+        },
+        date = {
+            "os.date([format [, time]]) - Returns the current in-game date",
+            function(self, format, time)
+                if not time then
+                    -- We'll assume that the game started at the begining of "time"
+                    time = os.time({
+                        year=3000,
+                        month=1,
+                        day=1,
+                        hour=0,
+                        minute=0
+                    }) + math.floor(self.__getPlayedTick() / 60)
+                end
+                return os.date(format, time)
+            end
+        },
+        difftime = {
+            "os.difftime(t2, t1) - Returns the number of seconds from time t1 to time t2",
+            function(self, t2, t1)
+                return math.floor(t2 - t1)
+            end
+        }
+        execute = {
+            "os.execute([command]) - Run a system command and return the result",
+            function(self, command)
+                -- TODO: Handle executing another file and returning the result
+                return nil
+            end
+        },
+        exit = {
+            "os.exit([code [, close]]) - Exits the running program",
+            function(self, code, close)
+                -- TODO: handle somehow
+            end
+        },
+        getenv = {
+            "os.getenv(varname) - Returns environment variables of the given name",
+            function(self, varname)
+                return unpack(self._data[varname] or {})
+            end
+        },
+        remove = {
+            "os.remove(filename) - Deletes a file with a given name. If this function fails it returns nil plus a string describing the error",
+            function(self, filename)
+                if not self.__fileExist(filepath) then
+                    return nil, "The file does not exist"
+                end
+                self.__removeFile(filepath)
+                return true, ""
+            end
+        }
+        rename = {
+            "os.rename(oldname, newname) - Renames a file named oldname to newname. If the function fails, it returns nil plus a string describing the error",
+            function(self, oldname, newname)
+                if not self.__fileExist(oldname) then
+                    return nil, "old file does not exist"
+                end
+                if self.__fileExist(newname) then
+                    return nil, "new file already exists"
+                end
+                self.__writeFile(newname, self.__readFle(oldname))
+                self.__removeFile(oldname)
+                return true, ""
+            end
+        },
+        setlocale = {
+            "os.setlocale(locale [, category]) - Sets the current locale of the program",
+            function(locale, category)
+                if not locale or locale == "c" or locale == "" then
+                    return "c"
+                end
+                return nil
+            end
+        },
+        time = {
+            "os.time([table]) - Returnst eh current time when called without arguments. Or a time represented by the date and time specified in a given table",
+            function(self, table)
+                if not table then
+                    return os.time({
+                        year=3000,
+                        month=1,
+                        day=1,
+                        hour=0,
+                        minute=0
+                    }) + math.floor(self.__getPlayedTick() / 60)
+                end
+                return os.time(table)
+            end
+        },
+        tmpname = {
+            "os.tmpname() - Returns a string with a file name that can be used for a temporary file. The file must be explicitly opened before use and explicitly removed when no longer needed",
+            function(self)
+                return "/tmp/" + os.time()
             end
         }
     }
