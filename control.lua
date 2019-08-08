@@ -52,8 +52,8 @@ baseEnv = {
     table = table,
     math = math,
     bit32 = bit32,
-    -- io = io,
-    -- os = os,
+    -- io = io, -- NOT AVAILABLE
+    --os = os, -- NOT AVAILABLE
     -- debug = debug,
 
     defines = defines,

@@ -359,16 +359,14 @@ computer = {
     end,
 
     loadAPI = function(self, api, item, proxy, env)
-        --local player = self:getPlayer()
         setmetatable(item, {
-        -- protected metatable
+            -- protected metatable
             __index = setmetatable({
-            -- Empty object (this is a proxy to the private properties of the API)
+                -- Empty object (this is a proxy to the private properties of the API)
             }, {
-            -- private properties
+                -- private properties
                 env = env,
                 computer = self,
-            --player = player,
 
                 getters = {
                     __player = function(self)
@@ -476,16 +474,6 @@ computer = {
                                 return fn()
                             end
                             return game.tick
-                        end
-                    end,
-                    __time = function(self)
-                        return function(table)
-                            return _G.os.time(table)
-                        end
-                    end,
-                    __date = function(self)
-                        return function(format, time)
-                            return _G.os.date(format, time)
                         end
                     end,
                     __require = function(self)
@@ -660,6 +648,19 @@ computer = {
                             return true
                         end
                     end
+                    __range = function(self)
+                        return function(self, from, to, step)
+                          step = step or 1
+                          return function(_, lastvalue)
+                            local nextvalue = lastvalue + step
+                            if step > 0 and nextvalue <= to or step < 0 and nextvalue >= to or
+                               step == 0
+                            then
+                              return nextvalue
+                            end
+                          end, nil, from - step
+                      end
+                    end
                 },
 
             -- access to private properties
@@ -680,21 +681,21 @@ computer = {
 
         -- The API isn't 'Read-Only'
 
-        -- Protect metatable (blocks access to the metatable)
+            -- Protect metatable (blocks access to the metatable)
             __metatable = "this is the protected API " .. api.name
         })
 
         setmetatable(proxy, {
-        -- protected metatable
+            -- protected metatable
             __index = setmetatable({
-            -- Empty object (this is a proxy to the private properties of the proxy)
+                -- Empty object (this is a proxy to the private properties of the proxy)
             }, {
-            -- private properties
+                -- private properties
                 env = env,
                 api = item,
                 apiPrototype = api,
 
-            -- access to private properties
+                -- access to private properties
                 __index = function(tbl, key)
                     local self = getmetatable(tbl)
                     assert(self.env.prototypes[self.apiPrototype.name][key], self.apiPrototype.name .. " doesn't have key " .. key)
@@ -706,18 +707,18 @@ computer = {
                     return self.api[key]
                 end,
 
-            -- Set protected metatable 'Read-Only'
+                -- Set protected metatable 'Read-Only'
                 __newindex = function(self, key)
                     assert(false, "Can't edit protected metatable")
                 end
             }),
 
-        -- Set Proxy 'Read-Only'
+            -- Set Proxy 'Read-Only'
             __newindex = function(self, key)
                 assert(false, "Can't edit API " .. self.apiPrototype.name)
             end,
 
-        -- Protect metatable (blocks access to the metatable)
+            -- Protect metatable (blocks access to the metatable)
             __metatable = "this is the API " .. api.name
         })
 

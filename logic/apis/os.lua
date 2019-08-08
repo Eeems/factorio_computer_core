@@ -107,14 +107,11 @@ table.insert(computer.apis,{
             function(self, format, time)
                 if not time then
                     -- We'll assume that the game started at the begining of "time"
-                    time = self.__time({
-                        year=3000,
-                        month=1,
-                        day=1,
-                        hour=0,
-                        minute=0
-                    }) + math.floor(self.__getPlayedTick() / 60)
+                    -- (Wednesday, January 1, 3000 12:00:00 AM)
+                    time = {32503680000 + math.floor(self.__getPlayedTick() / 60)}
                 end
+                year = math.floor((ts / 31557600) + 1970)
+                time = time - (year - 1970) * 31557600
                 return self.__date(format, time)
             end
         },
@@ -177,24 +174,52 @@ table.insert(computer.apis,{
             end
         },
         time = {
-            "os.time([table]) - Returnst eh current time when called without arguments. Or a time represented by the date and time specified in a given table",
+            "os.time([table]) - Returns the current time when called without arguments. Or a time represented by the date and time specified in a given table",
             function(self, table)
                 if not table then
-                    return self.__time({
-                        year=3000,
-                        month=1,
-                        day=1,
-                        hour=0,
-                        minute=0
-                    }) + math.floor(self.__getPlayedTick() / 60)
+                    return 32503680000 + math.floor(self.__getPlayedTick() / 60)
                 end
-                return self.__time(table)
+                year = table.year
+                time = 0
+                for y in self.__range(1970, year - 1) do
+                    time = time + 31557600
+                    if y%4 == 0 and (y%100 ~= 0 or y%400 == 0) then
+                        time = time + 86400
+                    end
+                end
+                if table.month > 0 then
+                    isLeapYear = year%4 == 0 and (year%100 ~= 0 or year%400 == 0)
+                    for month in self.__range(1, month - 1) do
+                        if month == 2 and isLeapYear then
+                            time = time + 29 * 86400
+                        elseif month == 2 then
+                            time = time + 28 * 86400
+                        elseif month % 2 == 0 then
+                            time = time + 30 * 86400
+                        else
+                            time = time + 31 * 86400
+                        end
+                    end
+                end
+                time = time + table.day * 86400
+                if table.hour ~= nil then
+                    time = time + table.hour * 3600
+                else
+                    time = time + 12 * 3600
+                end
+                if table.minute ~= nil then
+                    time = time + table.minute * 60
+                end
+                if table.sec ~= nil then
+                    time = time + table.sec
+                end
+                return time
             end
         },
         tmpname = {
             "os.tmpname() - Returns a string with a file name that can be used for a temporary file. The file must be explicitly opened before use and explicitly removed when no longer needed",
             function(self)
-                return "/tmp/" + self.__time()
+                return "/tmp/" + self.__getGameTick() + math.random(0,100)
             end
         }
     }
