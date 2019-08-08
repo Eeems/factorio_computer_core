@@ -105,13 +105,14 @@ table.insert(computer.apis,{
         date = {
             "os.date([format [, time]]) - Returns the current in-game date",
             function(self, format, time)
-                if not time then
+                if time == nil then
                     -- We'll assume that the game started at the begining of "time"
                     -- (Wednesday, January 1, 3000 12:00:00 AM)
-                    time = {32503680000 + math.floor(self.__getPlayedTick() / 60)}
+                    time = 32503680000 + math.floor(self.__getPlayedTick() / 60)
                 end
-                year = math.floor((time / 31536000) + 1970)
-                time = time - (year - 1970) * 31536000
+                if format == nil then
+                    format = '%c'
+                end
                 if format == "*t" then
                     return self.__date(time)
                 end

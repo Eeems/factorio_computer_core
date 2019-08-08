@@ -649,132 +649,18 @@ computer = {
                         end
                     end,
                     __range = function(self)
-                        return function(self, from, to, step)
-                          step = step or 1
-                          return function(_, lastvalue)
-                            local nextvalue = lastvalue + step
-                            if step > 0 and nextvalue <= to or step < 0 and nextvalue >= to or
-                               step == 0
-                            then
-                              return nextvalue
-                            end
-                          end, nil, from - step
+                        return function(from, to, step)
+                          return range(from, to, step)
                       end
                     end,
                     __date = function(self)
-                        return function(self, time)
-                            year = 1970
-                            while time > 31536000 do
-                              year = year + 1
-                              isLeapYear = year%4 == 0 and (year%100 ~= 0 or year%400 == 0)
-                              if isLeapYear then
-                                if time < 86400 then
-                                  year = year - 1
-                                  break
-                                end
-                                time = time - 86400
-                              end
-                              time = time - 31536000
-                            end
-                            for m in self.__range(1, 12) do
-                              month = m
-                              if m == 2 and isLeapYear then
-                                  amt = 29
-                              elseif m == 2 then
-                                  amt = 28
-                              elseif m == 4 or m == 6 or m == 9 or m == 11 then
-                                  amt = 30
-                              else
-                                  amt = 31
-                              end
-                              amt = amt * 86400
-                              if time < amt then
-                                break
-                              end
-                              time = time - amt
-                            end
-                            day = math.floor(time / 86400) + 1
-                            time = time - (day - 1) * 86400
-                            hour = math.floor(time / 3600)
-                            time = time - hour * 3600
-                            minute = math.floor(time / 60)
-                            time = time - minute * 60
-                            second = time
-                            -- TODO: get wday and yday
-                            return {year=year, month=month, day=day, hour=hour, min=minute, sec=sec}
+                        return function(time)
+                            return date(time)
                         end
                     end,
                     __strtime = function(self)
-                        return function(self, format, time)
-                            table = self.__date(time)
-                            res = ""
-                            while #format do
-                                char = string.sub(format, 1,1)
-                                format = string.sub(format, 2)
-                                if char == "%" then
-                                    char = string.sub(format, 1,1)
-                                    format = string.sub(format, 2)
-                                    if char == "a" then
-                                        -- TODO: short weekday name
-                                    elseif char == "A" then
-                                        -- TODO: full weekday name
-                                    elseif char == "b" then
-                                        -- TODO: short month name
-                                    elseif char == "B" then
-                                        -- TODO: Full month name
-                                    elseif char == "c" then
-                                        res = res .. self.__strtime("%x T %X", time)
-                                    elseif char == "d" then
-                                        res = res .. string.format("%02d", table.day)
-                                    elseif char == "H" then
-                                        res = res .. string.format("%02d", table.hour)
-                                    elseif char == "I" then
-                                        hour = table.hour
-                                        if hour > 12 then
-                                            hour = hour - 12
-                                        end
-                                        if hour == 0 then
-                                            hour = 12
-                                        end
-                                        res = res .. string.format("%02d", hour)
-                                    elseif char == "j" then
-                                        -- TODO: Day of year
-                                    elseif char == "m" then
-                                        res = res .. string.format("%02d", table.month)
-                                    elseif char == "M" then
-                                        res = res .. string.format("%02d", table.min)
-                                    elseif char == "p" then
-                                        if table.hour < 12 then
-                                            res = res .. "a.m."
-                                        else
-                                            res = res .. "p.m."
-                                        end
-                                    elseif char == "S" then
-                                        res = res .. string.format("%02d", table.sec)
-                                    elseif char == "U" then
-                                        -- TODO: add week number of the year (Sun first day
-                                    elseif char == "w" then
-                                        -- TODO: replace by weekday (1(Sun) - 6(Sat))
-                                    elseif char == "W" then
-                                        -- TODO: add week number of the year (monday first day)
-                                    elseif char == "x" then
-                                        res = res .. self.__strtime("%Y-%m-%d", time)
-                                    elseif char == "X" then
-                                        res = res .. self.__strtime("%H:%M:S", time)
-                                    elseif char == "y" then
-                                        res = res .. string.sub(table.year, 2)
-                                    elseif char == "Y" then
-                                        res = res .. table.year
-                                    elseif char == "Z" then
-                                        -- Do nothing as we are pretending no timezone
-                                    else
-                                        res = res .. "%" .. char
-                                    end
-                                else
-                                    res = res .. char
-                                end
-                            end
-                            return res
+                        return function(format, time)
+                            return strtime(format, time)
                         end
                     end
                 },
