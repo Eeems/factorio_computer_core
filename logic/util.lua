@@ -427,7 +427,7 @@ function date(time)
     time = time - minute * 60
     second = time
     -- TODO: get wday and yday
-    return {year=year, month=month, day=day, hour=hour, min=minute, sec=sec}
+    return {year=year, month=month, day=day, hour=hour, min=minute, sec=second}
 end
 
 function strtime(format, time)
@@ -485,7 +485,7 @@ function strtime(format, time)
             elseif char == "x" then
                 res = res .. strtime("%Y-%m-%d", time)
             elseif char == "X" then
-                res = res .. strtime("%H:%M:S", time)
+                res = res .. strtime("%H:%M:%S", time)
             elseif char == "y" then
                 res = res .. string.sub(data.year, 2)
             elseif char == "Y" then
