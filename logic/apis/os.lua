@@ -112,7 +112,10 @@ table.insert(computer.apis,{
                 end
                 year = math.floor((ts / 31557600) + 1970)
                 time = time - (year - 1970) * 31557600
-                return self.__date(format, time)
+                if format == "*t" then
+                    return self.__date(time)
+                end
+                return self.__strtime(format, time)
             end
         },
         difftime = {
@@ -182,33 +185,35 @@ table.insert(computer.apis,{
                 year = table.year
                 time = 0
                 for y in self.__range(1970, year - 1) do
-                    time = time + 31557600
+                    time = time + 31536000
                     if y%4 == 0 and (y%100 ~= 0 or y%400 == 0) then
                         time = time + 86400
                     end
                 end
-                if table.month > 0 then
+                if table.month > 1 then
                     isLeapYear = year%4 == 0 and (year%100 ~= 0 or year%400 == 0)
-                    for month in self.__range(1, month - 1) do
+                    for month in self.__range(1, table.month - 1) do
                         if month == 2 and isLeapYear then
                             time = time + 29 * 86400
                         elseif month == 2 then
                             time = time + 28 * 86400
-                        elseif month % 2 == 0 then
+                        elseif month == 4 or month == 6 or month == 9 or month == 11 then
                             time = time + 30 * 86400
                         else
                             time = time + 31 * 86400
                         end
                     end
                 end
-                time = time + table.day * 86400
+                if table.day > 1 then
+                    time = time + (table.day - 1) * 86400
+                end
                 if table.hour ~= nil then
                     time = time + table.hour * 3600
                 else
                     time = time + 12 * 3600
                 end
-                if table.minute ~= nil then
-                    time = time + table.minute * 60
+                if table.min ~= nil then
+                    time = time + table.min * 60
                 end
                 if table.sec ~= nil then
                     time = time + table.sec
