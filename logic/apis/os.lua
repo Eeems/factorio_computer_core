@@ -110,8 +110,8 @@ table.insert(computer.apis,{
                     -- (Wednesday, January 1, 3000 12:00:00 AM)
                     time = {32503680000 + math.floor(self.__getPlayedTick() / 60)}
                 end
-                year = math.floor((ts / 31557600) + 1970)
-                time = time - (year - 1970) * 31557600
+                year = math.floor((time / 31536000) + 1970)
+                time = time - (year - 1970) * 31536000
                 if format == "*t" then
                     return self.__date(time)
                 end
