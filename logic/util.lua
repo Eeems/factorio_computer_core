@@ -431,7 +431,7 @@ function date(time)
 end
 
 function strtime(format, time)
-    table = date(time)
+    data = date(time)
     res = ""
     while #format > 0 do
         char = string.sub(format, 1,1)
@@ -450,11 +450,11 @@ function strtime(format, time)
             elseif char == "c" then
                 res = strtime("%x T %X", time)
             elseif char == "d" then
-                res = res .. string.format("%02d", table.day)
+                res = res .. string.format("%02d", data.day)
             elseif char == "H" then
-                res = res .. string.format("%02d", table.hour)
+                res = res .. string.format("%02d", data.hour)
             elseif char == "I" then
-                hour = table.hour
+                hour = data.hour
                 if hour > 12 then
                     hour = hour - 12
                 end
@@ -465,17 +465,17 @@ function strtime(format, time)
             elseif char == "j" then
                 -- TODO: Day of year
             elseif char == "m" then
-                res = res .. string.format("%02d", table.month)
+                res = res .. string.format("%02d", data.month)
             elseif char == "M" then
-                res = res .. string.format("%02d", table.min)
+                res = res .. string.format("%02d", data.min)
             elseif char == "p" then
-                if table.hour < 12 then
+                if data.hour < 12 then
                     res = res .. "a.m."
                 else
                     res = res .. "p.m."
                 end
             elseif char == "S" then
-                res = res .. string.format("%02d", table.sec)
+                res = res .. string.format("%02d", data.sec)
             elseif char == "U" then
                 -- TODO: add week number of the year (Sun first day
             elseif char == "w" then
@@ -487,9 +487,9 @@ function strtime(format, time)
             elseif char == "X" then
                 res = res .. strtime("%H:%M:S", time)
             elseif char == "y" then
-                res = res .. string.sub(table.year, 2)
+                res = res .. string.sub(data.year, 2)
             elseif char == "Y" then
-                res = res .. table.year
+                res = res .. data.year
             elseif char == "Z" then
                 -- Do nothing as we are pretending no timezone
             else
