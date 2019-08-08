@@ -730,8 +730,8 @@ computer = {
                                         res = res .. string.format("%02d", table.hour)
                                     elseif char == "I" then
                                         hour = table.hour
-                                        if hour > 12
-                                            hour - 12
+                                        if hour > 12 then
+                                            hour = hour - 12
                                         end
                                         if hour == 0 then
                                             hour = 12
