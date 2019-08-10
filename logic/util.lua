@@ -402,8 +402,9 @@ function date(time)
       end
       time = time - 31536000
     end
+    yday = 0
+    wday = 0
     for m in range(1, 12) do
-      month = m
       if m == 2 and isLeapYear then
           amt = 29
       elseif m == 2 then
@@ -413,25 +414,36 @@ function date(time)
       else
           amt = 31
       end
-      amt = amt * 86400
-      if time < amt then
+      amts = amt * 86400
+      month = m
+      if time < amts then
         break
       end
-      time = time - amt
+      time = time - amts
+      yday = yday + amt
     end
     day = math.floor(time / 86400) + 1
+    yday = yday + day - 1
     time = time - (day - 1) * 86400
     hour = math.floor(time / 3600)
     time = time - hour * 3600
     minute = math.floor(time / 60)
     time = time - minute * 60
     second = time
-    -- TODO: get wday and yday
-    return {year=year, month=month, day=day, hour=hour, min=minute, sec=second}
+    -- TODO: get wday
+    return {
+        year=year, month=month, day=day,
+        hour=hour, min=minute, sec=second,
+        yday=yday, wday=wday
+    }
 end
 
 function strtime(format, time)
-    data = date(time)
+    if type(time) ~= "table" then
+      data = date(time)
+    else
+      data = time
+    end
     res = ""
     while #format > 0 do
         char = string.sub(format, 1,1)
@@ -448,7 +460,7 @@ function strtime(format, time)
             elseif char == "B" then
                 -- TODO: Full month name
             elseif char == "c" then
-                res = strtime("%x T %X", time)
+                res = strtime("%x T %X", data)
             elseif char == "d" then
                 res = res .. string.format("%02d", data.day)
             elseif char == "H" then
@@ -463,7 +475,7 @@ function strtime(format, time)
                 end
                 res = res .. string.format("%02d", hour)
             elseif char == "j" then
-                -- TODO: Day of year
+                res = res .. string.format("%03d", data.yday)
             elseif char == "m" then
                 res = res .. string.format("%02d", data.month)
             elseif char == "M" then
@@ -477,15 +489,15 @@ function strtime(format, time)
             elseif char == "S" then
                 res = res .. string.format("%02d", data.sec)
             elseif char == "U" then
-                -- TODO: add week number of the year (Sun first day
+                -- TODO: add week number of the year (Sun first day)
             elseif char == "w" then
                 -- TODO: replace by weekday (1(Sun) - 6(Sat))
             elseif char == "W" then
                 -- TODO: add week number of the year (monday first day)
             elseif char == "x" then
-                res = res .. strtime("%Y-%m-%d", time)
+                res = res .. strtime("%Y-%m-%d", data)
             elseif char == "X" then
-                res = res .. strtime("%H:%M:%S", time)
+                res = res .. strtime("%H:%M:%S", data)
             elseif char == "y" then
                 res = res .. string.sub(data.year, 2)
             elseif char == "Y" then
