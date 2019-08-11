@@ -455,8 +455,8 @@ function weekDay(data)
     dayOfWeek = 5 + ((aux + afterFeb) * 365)
     dayOfWeek = dayOfWeek + math.floor(aux / 4 - aux / 100 + (aux + 100) / 400)
     dayOfWeek = dayOfWeek + (offset[month] + (day - 1))
-    dayOfWeek = dayOfWeek % 7 + 1
-    return dayOfWeek, week[dayOfWeek] or ''
+    dayOfWeek = dayOfWeek % 7
+    return dayOfWeek, week[dayOfWeek + 1] or ''
 end
 
 function strtime(format, time)
