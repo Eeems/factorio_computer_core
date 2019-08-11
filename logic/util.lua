@@ -390,11 +390,11 @@ end
 
 function date(time)
     year = 1970
-    while time > 31536000 do
+    while time >= 31536000 do
       year = year + 1
-      isLeapYear = year%4 == 0 and (year%100 ~= 0 or year%400 == 0)
+      isLeapYear = (year%4 == 0 and year%100 ~= 0) or year%400 == 0
       if isLeapYear then
-        if time < 86400 then
+        if time < 31536000 + 86400 then
           year = year - 1
           break
         end
@@ -438,6 +438,27 @@ function date(time)
     }
 end
 
+function weekDay(data)
+    year = data.year
+    month = data.month
+    day = data.day
+    offset = {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334}
+    week   = {
+      'Sunday', 'Monday', 'Tuesday', 'Wednesday',
+      'Thursday',  'Friday', 'Saturday'
+    }
+    afterFeb = 0
+    if month < 3 then
+        afterFeb = 1
+    end
+    aux = year - 1700 - afterFeb
+    dayOfWeek = 5 + ((aux + afterFeb) * 365)
+    dayOfWeek = dayOfWeek + math.floor(aux / 4 - aux / 100 + (aux + 100) / 400)
+    dayOfWeek = dayOfWeek + (offset[month] + (day - 1))
+    dayOfWeek = dayOfWeek % 7 + 1
+    return dayOfWeek, week[dayOfWeek] or ''
+end
+
 function strtime(format, time)
     if type(time) ~= "table" then
       data = date(time)
@@ -452,9 +473,11 @@ function strtime(format, time)
             char = string.sub(format, 1,1)
             format = string.sub(format, 2)
             if char == "a" then
-                -- TODO: short weekday name
+                wday, dayname = weekDay(data)
+                res = res .. string.sub(dayname, 0, 3)
             elseif char == "A" then
-                -- TODO: full weekday name
+                wday, dayname = weekDay(data)
+                res = res .. dayname
             elseif char == "b" then
                 -- TODO: short month name
             elseif char == "B" then
@@ -491,7 +514,8 @@ function strtime(format, time)
             elseif char == "U" then
                 -- TODO: add week number of the year (Sun first day)
             elseif char == "w" then
-                -- TODO: replace by weekday (1(Sun) - 6(Sat))
+                wday, dayname = weekDay(data)
+                res = res .. wday
             elseif char == "W" then
                 -- TODO: add week number of the year (monday first day)
             elseif char == "x" then
