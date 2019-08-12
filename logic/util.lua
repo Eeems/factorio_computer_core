@@ -422,7 +422,7 @@ function date(time)
       yday = yday + amt
     end
     day = math.floor(time / 86400) + 1
-    yday = yday + day - 1
+    yday = yday + day
     time = time - (day - 1) * 86400
     hour = math.floor(time / 3600)
     time = time - hour * 3600
