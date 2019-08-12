@@ -455,6 +455,14 @@ function weekDay(wday)
   return week[wday + 1] or ''
 end
 
+function monthName(month)
+  year = {
+    'January', 'February', 'March', 'April', 'May','June', 'July',
+    'August', 'September', 'October', 'November', 'December'
+  }
+  return year[month] or ''
+end
+
 function strtime(format, time)
     if type(time) ~= "table" then
       data = date(time)
@@ -472,12 +480,12 @@ function strtime(format, time)
                 dayname = weekDay(data.wday)
                 res = res .. string.sub(dayname, 0, 3)
             elseif char == "A" then
-                dayname = weekDay(data.wday)
-                res = res .. dayname
+                res = res .. weekDay(data.wday)
             elseif char == "b" then
-                -- TODO: short month name
+                monthname = monthName(data.month)
+                res = res .. string.sub(monthname, 0, 3)
             elseif char == "B" then
-                -- TODO: Full month name
+                res = res .. monthName(data.month)
             elseif char == "c" then
                 res = strtime("%x T %X", data)
             elseif char == "d" then
