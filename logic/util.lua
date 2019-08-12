@@ -530,7 +530,7 @@ function strtime(format, time)
             elseif char == "Y" then
                 res = res .. data.year
             elseif char == "Z" then
-                -- Do nothing as we are pretending no timezone
+                res = res .. 'UTC'
             else
                 res = res .. "%" .. char
             end
