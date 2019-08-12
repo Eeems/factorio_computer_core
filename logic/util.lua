@@ -403,7 +403,6 @@ function date(time)
       time = time - 31536000
     end
     yday = 0
-    wday = 0
     for m in range(1, 12) do
       if m == 2 and isLeapYear then
           amt = 29
@@ -430,7 +429,17 @@ function date(time)
     minute = math.floor(time / 60)
     time = time - minute * 60
     second = time
-    -- TODO: get wday
+
+    offset = {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334}
+    afterFeb = 0
+    if month < 3 then
+        afterFeb = 1
+    end
+    aux = year - 1700 - afterFeb
+    wday = 5 + ((aux + afterFeb) * 365)
+    wday = wday + math.floor(aux / 4 - aux / 100 + (aux + 100) / 400)
+    wday = wday + (offset[month] + (day - 1))
+    wday = wday % 7
     return {
         year=year, month=month, day=day,
         hour=hour, min=minute, sec=second,
@@ -438,25 +447,12 @@ function date(time)
     }
 end
 
-function weekDay(data)
-    year = data.year
-    month = data.month
-    day = data.day
-    offset = {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334}
-    week   = {
-      'Sunday', 'Monday', 'Tuesday', 'Wednesday',
-      'Thursday',  'Friday', 'Saturday'
-    }
-    afterFeb = 0
-    if month < 3 then
-        afterFeb = 1
-    end
-    aux = year - 1700 - afterFeb
-    dayOfWeek = 5 + ((aux + afterFeb) * 365)
-    dayOfWeek = dayOfWeek + math.floor(aux / 4 - aux / 100 + (aux + 100) / 400)
-    dayOfWeek = dayOfWeek + (offset[month] + (day - 1))
-    dayOfWeek = dayOfWeek % 7
-    return dayOfWeek, week[dayOfWeek + 1] or ''
+function weekDay(wday)
+  week   = {
+    'Sunday', 'Monday', 'Tuesday', 'Wednesday',
+    'Thursday',  'Friday', 'Saturday'
+  }
+  return week[wday + 1] or ''
 end
 
 function strtime(format, time)
@@ -473,10 +469,10 @@ function strtime(format, time)
             char = string.sub(format, 1,1)
             format = string.sub(format, 2)
             if char == "a" then
-                wday, dayname = weekDay(data)
+                dayname = weekDay(data.wday)
                 res = res .. string.sub(dayname, 0, 3)
             elseif char == "A" then
-                wday, dayname = weekDay(data)
+                dayname = weekDay(data.wday)
                 res = res .. dayname
             elseif char == "b" then
                 -- TODO: short month name
@@ -514,8 +510,7 @@ function strtime(format, time)
             elseif char == "U" then
                 -- TODO: add week number of the year (Sun first day)
             elseif char == "w" then
-                wday, dayname = weekDay(data)
-                res = res .. wday
+                res = res .. data.wday
             elseif char == "W" then
                 -- TODO: add week number of the year (monday first day)
             elseif char == "x" then
