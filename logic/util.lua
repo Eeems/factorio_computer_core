@@ -389,8 +389,8 @@ function range(from, to, step)
 end
 
 function time(data)
-    year = data.year
-    ts = 0
+    local year = data.year
+    local ts = 0
     for y in range(1970, year - 1) do
         ts = ts + 31536000
         if y%4 == 0 and (y%100 ~= 0 or y%400 == 0) then
@@ -398,7 +398,7 @@ function time(data)
         end
     end
     if data.month > 1 then
-        isLeapYear = year%4 == 0 and (year%100 ~= 0 or year%400 == 0)
+        local isLeapYear = year%4 == 0 and (year%100 ~= 0 or year%400 == 0)
         for month in range(1, data.month - 1) do
             if month == 2 and isLeapYear then
                 ts = ts + 29 * 86400
@@ -429,7 +429,8 @@ function time(data)
 end
 
 function date(ts)
-    year = 1970
+    local year = 1970
+    local isLeapYear = false
     while ts >= 31536000 do
       year = year + 1
       isLeapYear = (year%4 == 0 and year%100 ~= 0) or year%400 == 0
@@ -442,7 +443,9 @@ function date(ts)
       end
       ts = ts - 31536000
     end
-    yday = 0
+    local yday = 0
+    local amt = 0
+    local month = 0
     for m in range(1, 12) do
       if m == 2 and isLeapYear then
           amt = 29
@@ -453,7 +456,7 @@ function date(ts)
       else
           amt = 31
       end
-      amts = amt * 86400
+      local amts = amt * 86400
       month = m
       if ts < amts then
         break
@@ -461,22 +464,21 @@ function date(ts)
       ts = ts - amts
       yday = yday + amt
     end
-    day = math.floor(ts / 86400) + 1
-    yday = yday + day
+    local day = math.floor(ts / 86400) + 1
+    local yday = yday + day
     ts = ts - (day - 1) * 86400
-    hour = math.floor(ts / 3600)
+    local hour = math.floor(ts / 3600)
     ts = ts - hour * 3600
-    minute = math.floor(ts / 60)
+    local minute = math.floor(ts / 60)
     ts = ts - minute * 60
-    second = ts
-
-    offset = {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334}
-    afterFeb = 0
+    local second = ts
+    local afterFeb = 0
     if month < 3 then
         afterFeb = 1
     end
-    aux = year - 1700 - afterFeb
-    wday = 5 + ((aux + afterFeb) * 365)
+    local offset = {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334}
+    local aux = year - 1700 - afterFeb
+    local wday = 5 + ((aux + afterFeb) * 365)
     wday = wday + math.floor(aux / 4 - aux / 100 + (aux + 100) / 400)
     wday = wday + (offset[month] + (day - 1))
     wday = wday % 7
@@ -488,7 +490,7 @@ function date(ts)
 end
 
 function weekDay(wday)
-  week   = {
+  local week = {
     'Sunday', 'Monday', 'Tuesday', 'Wednesday',
     'Thursday',  'Friday', 'Saturday'
   }
@@ -496,7 +498,7 @@ function weekDay(wday)
 end
 
 function monthName(month)
-  year = {
+  local year = {
     'January', 'February', 'March', 'April', 'May','June', 'July',
     'August', 'September', 'October', 'November', 'December'
   }
@@ -504,8 +506,8 @@ function monthName(month)
 end
 
 function weekOfYear(data, mondayFirst)
-    wday = data.wday
-    jan1wday = date(time({year=data.year, month=1, day=1})).wday
+    local wday = data.wday
+    local jan1wday = date(time({year=data.year, month=1, day=1})).wday
     if mondayFirst then
         wday = (wday - 2)%7
         jan1wday = (jan1wday - 2)%7
@@ -513,7 +515,7 @@ function weekOfYear(data, mondayFirst)
         wday = (wday - 1)%7
         jan1wday = (jan1wday - 1)%7
     end
-    weeknum = math.floor((data.yday + 6) / 7)
+    local weeknum = math.floor((data.yday + 6) / 7)
     if wday < jan1wday then
       return weeknum
     end
@@ -521,30 +523,42 @@ function weekOfYear(data, mondayFirst)
 end
 
 function strtime(format, time)
-    if type(time) ~= "table" then
-      data = date(time)
-    else
-      data = time
+    local data = time
+    if type(data) ~= "table" then
+      data = date(data)
     end
-    res = ""
-    while #format > 0 do
-        char = string.sub(format, 1,1)
-        format = string.sub(format, 2)
+    local res = ""
+    local fmt = format
+    local dayname
+    local monthname
+    while #fmt > 0 do
+        local char = string.sub(fmt, 1,1)
+        fmt = string.sub(fmt, 2)
         if char == "%" then
-            char = string.sub(format, 1,1)
-            format = string.sub(format, 2)
+            char = string.sub(fmt, 1,1)
+            fmt = string.sub(fmt, 2)
             if char == "a" then
-                dayname = weekDay(data.wday)
+                if not dayname then
+                    dayname = weekDay(data.wday)
+                end
                 res = res .. string.sub(dayname, 0, 3)
             elseif char == "A" then
-                res = res .. weekDay(data.wday)
+                if not dayname then
+                    dayname = weekDay(data.wday)
+                end
+                res = res .. dayname
             elseif char == "b" then
-                monthname = monthName(data.month)
+                if not monthname then
+                    monthname = monthName(data.month)
+                end
                 res = res .. string.sub(monthname, 0, 3)
             elseif char == "B" then
-                res = res .. monthName(data.month)
+                if not monthname then
+                    monthname = monthName(data.month)
+                end
+                res = res .. monthname
             elseif char == "c" then
-                res = strtime("%x T %X", data)
+                res = res .. strtime("%a %b %d %X %Y", data)
             elseif char == "d" then
                 res = res .. string.format("%02d", data.day)
             elseif char == "H" then
@@ -566,9 +580,9 @@ function strtime(format, time)
                 res = res .. string.format("%02d", data.min)
             elseif char == "p" then
                 if data.hour < 12 then
-                    res = res .. "a.m."
+                    res = res .. "AM"
                 else
-                    res = res .. "p.m."
+                    res = res .. "PM"
                 end
             elseif char == "S" then
                 res = res .. string.format("%02d", data.sec)
