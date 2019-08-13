@@ -658,6 +658,11 @@ computer = {
                             return date(time)
                         end
                     end,
+                    __time = function(self)
+                        return function(data)
+                            return time(data)
+                        end
+                    end
                     __strtime = function(self)
                         return function(format, time)
                             return strtime(format, time)

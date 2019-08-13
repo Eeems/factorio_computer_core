@@ -388,19 +388,59 @@ function range(from, to, step)
     end, nil, from - step
 end
 
-function date(time)
+function time(data)
+    year = data.year
+    ts = 0
+    for y in range(1970, year - 1) do
+        ts = ts + 31536000
+        if y%4 == 0 and (y%100 ~= 0 or y%400 == 0) then
+            ts = ts + 86400
+        end
+    end
+    if data.month > 1 then
+        isLeapYear = year%4 == 0 and (year%100 ~= 0 or year%400 == 0)
+        for month in range(1, data.month - 1) do
+            if month == 2 and isLeapYear then
+                ts = ts + 29 * 86400
+            elseif month == 2 then
+                ts = ts + 28 * 86400
+            elseif month == 4 or month == 6 or month == 9 or month == 11 then
+                ts = ts + 30 * 86400
+            else
+                ts = ts + 31 * 86400
+            end
+        end
+    end
+    if data.day > 1 then
+        ts = ts + (data.day - 1) * 86400
+    end
+    if data.hour ~= nil then
+        ts = ts + data.hour * 3600
+    else
+        ts = ts + 12 * 3600
+    end
+    if data.min ~= nil then
+        ts = ts + data.min * 60
+    end
+    if data.sec ~= nil then
+        ts = ts + data.sec
+    end
+    return ts
+end
+
+function date(ts)
     year = 1970
-    while time >= 31536000 do
+    while ts >= 31536000 do
       year = year + 1
       isLeapYear = (year%4 == 0 and year%100 ~= 0) or year%400 == 0
       if isLeapYear then
-        if time < 31536000 + 86400 then
+        if ts < 31536000 + 86400 then
           year = year - 1
           break
         end
-        time = time - 86400
+        ts = ts - 86400
       end
-      time = time - 31536000
+      ts = ts - 31536000
     end
     yday = 0
     for m in range(1, 12) do
@@ -415,20 +455,20 @@ function date(time)
       end
       amts = amt * 86400
       month = m
-      if time < amts then
+      if ts < amts then
         break
       end
-      time = time - amts
+      ts = ts - amts
       yday = yday + amt
     end
-    day = math.floor(time / 86400) + 1
+    day = math.floor(ts / 86400) + 1
     yday = yday + day
-    time = time - (day - 1) * 86400
-    hour = math.floor(time / 3600)
-    time = time - hour * 3600
-    minute = math.floor(time / 60)
-    time = time - minute * 60
-    second = time
+    ts = ts - (day - 1) * 86400
+    hour = math.floor(ts / 3600)
+    ts = ts - hour * 3600
+    minute = math.floor(ts / 60)
+    ts = ts - minute * 60
+    second = ts
 
     offset = {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334}
     afterFeb = 0
@@ -461,6 +501,23 @@ function monthName(month)
     'August', 'September', 'October', 'November', 'December'
   }
   return year[month] or ''
+end
+
+function weekOfYear(data, mondayFirst)
+    wday = data.wday
+    jan1wday = date(time({year=data.year, month=1, day=1})).wday
+    if mondayFirst then
+        wday = (wday - 2)%7
+        jan1wday = (jan1wday - 2)%7
+    else
+        wday = (wday - 1)%7
+        jan1wday = (jan1wday - 1)%7
+    end
+    weeknum = math.floor((data.yday + 6) / 7)
+    if wday < jan1wday then
+      return weeknum
+    end
+    return weeknum - 1
 end
 
 function strtime(format, time)
@@ -516,11 +573,11 @@ function strtime(format, time)
             elseif char == "S" then
                 res = res .. string.format("%02d", data.sec)
             elseif char == "U" then
-                -- TODO: add week number of the year (Sun first day)
+                res = res .. string.format("%02d", weekOfYear(data))
             elseif char == "w" then
                 res = res .. data.wday
             elseif char == "W" then
-                -- TODO: add week number of the year (monday first day)
+                res = res .. string.format("%02d", weekOfYear(data, true))
             elseif char == "x" then
                 res = res .. strtime("%Y-%m-%d", data)
             elseif char == "X" then

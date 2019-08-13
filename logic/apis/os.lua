@@ -179,47 +179,11 @@ table.insert(computer.apis,{
         },
         time = {
             "os.time([table]) - Returns the current time when called without arguments. Or a time represented by the date and time specified in a given table",
-            function(self, table)
-                if not table then
+            function(self, data)
+                if not data then
                     return 32503680000 + math.floor(self.__getPlayedTick() / 60)
                 end
-                year = table.year
-                time = 0
-                for y in self.__range(1970, year - 1) do
-                    time = time + 31536000
-                    if y%4 == 0 and (y%100 ~= 0 or y%400 == 0) then
-                        time = time + 86400
-                    end
-                end
-                if table.month > 1 then
-                    isLeapYear = year%4 == 0 and (year%100 ~= 0 or year%400 == 0)
-                    for month in self.__range(1, table.month - 1) do
-                        if month == 2 and isLeapYear then
-                            time = time + 29 * 86400
-                        elseif month == 2 then
-                            time = time + 28 * 86400
-                        elseif month == 4 or month == 6 or month == 9 or month == 11 then
-                            time = time + 30 * 86400
-                        else
-                            time = time + 31 * 86400
-                        end
-                    end
-                end
-                if table.day > 1 then
-                    time = time + (table.day - 1) * 86400
-                end
-                if table.hour ~= nil then
-                    time = time + table.hour * 3600
-                else
-                    time = time + 12 * 3600
-                end
-                if table.min ~= nil then
-                    time = time + table.min * 60
-                end
-                if table.sec ~= nil then
-                    time = time + table.sec
-                end
-                return time
+                return self.__time(data)
             end
         },
         tmpname = {
