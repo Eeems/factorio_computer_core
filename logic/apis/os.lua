@@ -147,10 +147,10 @@ table.insert(computer.apis,{
         remove = {
             "os.remove(filename) - Deletes a file with a given name. If this function fails it returns nil plus a string describing the error",
             function(self, filename)
-                if not self.__fileExist(filepath) then
+                if not self.__fileExist(filename) then
                     return nil, "The file does not exist"
                 end
-                self.__removeFile(filepath)
+                self.__removeFile(filename)
                 return true, ""
             end
         },
@@ -163,7 +163,7 @@ table.insert(computer.apis,{
                 if self.__fileExist(newname) then
                     return nil, "new file already exists"
                 end
-                self.__writeFile(newname, self.__readFle(oldname))
+                self.__writeFile(newname, self.__readFile(oldname))
                 self.__removeFile(oldname)
                 return true, ""
             end
@@ -189,7 +189,7 @@ table.insert(computer.apis,{
         tmpname = {
             "os.tmpname() - Returns a string with a file name that can be used for a temporary file. The file must be explicitly opened before use and explicitly removed when no longer needed",
             function(self)
-                return "/tmp/" + self.__getGameTick() + math.random(0,100)
+                return "/tmp/" .. self.__getGameTick() .. math.random(0,100)
             end
         }
     }
