@@ -662,7 +662,7 @@ computer = {
                         return function(data)
                             return time(data)
                         end
-                    end
+                    end,
                     __strtime = function(self)
                         return function(format, time)
                             return strtime(format, time)
